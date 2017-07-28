@@ -45,11 +45,16 @@ class PhotoStore {
         return containter
     }()
     
+    var asyncronizedContext : NSManagedObjectContext
+
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
     
+    init() {
+        asyncronizedContext = persistentContainer.newBackgroundContext()
+    }
     
     func fetchAllPhotos(completion: @escaping (PhotosResult) -> Void) {
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
@@ -82,78 +87,98 @@ class PhotoStore {
                 completion(.failure(error))
             }
         }
-        
     }
     
-    private func processPhotosRequest(data: Data?, error: Error?) -> PhotosResult {
-        
-        guard let jsonData = data else {
-            return .failure(error!)
+    private func processPhotosRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> PhotosResult) -> PhotosResult? {
+        var result: PhotosResult = PhotosResult.failure(nil)
+        asyncronizedContext.performAndWait {
+            result = completionHandler(self.asyncronizedContext)
         }
-        //
-        return FlickrAPI.photos(fromJSON: jsonData, into: persistentContainer.viewContext)
+        return result
     }
     
-    private func processImageRequest(data: Data?, error: Error?) -> ImageResult {
-        guard let imageData = data, let image = UIImage(data: imageData) else {
-            // can't create an image(UIImage)
-            if data == nil {
-                return .failure(error!)
-            } else {
-                return .failure(PhotoError.imageCreationError)
-            }
+    private func processImageRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> ImageResult) -> ImageResult? {
+        var result: ImageResult = ImageResult.failure(nil)
+        asyncronizedContext.performAndWait {
+            result = completionHandler(self.asyncronizedContext)
         }
-        return .success(image)
+        return result
     }
     
     func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
-        guard let photoKey = photo.photoID else {
-            preconditionFailure("Photo expected to have a photoID.")
-        }
-        if let image = imageStore.image(forKey: photoKey) {
-            OperationQueue.main.addOperation {
-                completion(.success(image))
+        self.persistentContainer.performBackgroundTask { context in
+            guard let photoKey = photo.photoID else {
+                preconditionFailure("Photo expected to have a photoID.")
             }
-            return
-        }
-        guard let photoURL = photo.remoteURL else {
-            preconditionFailure("Photo expected to have a remote URL.")
-        }
-        let request = URLRequest(url: photoURL as URL)
-        let task = session.dataTask(with: request) { (data, response, error) in
-            // result is UIImage
-            let result = self.processImageRequest(data: data, error: error)
-            if case let .success(image) = result {
-                self.imageStore.setImage(image, forkey: photoKey)
+            if let image = self.imageStore.image(forKey: photoKey) {
+                OperationQueue.main.addOperation {
+                    completion(.success(image))
+                }
+                return
             }
-            OperationQueue.main.addOperation {
-                completion(result)
+            guard let photoURL = photo.remoteURL else {
+                preconditionFailure("Photo expected to have a remote URL.")
             }
-        }
-        task.resume()
-    }
-    
-    func fetchInterestingPhotos(completion: @escaping (PhotosResult)-> Void) {
-        let url = FlickrAPI.interestingPhotosURL
-        let request = URLRequest(url: url)
-        let task = session.dataTask(with: request) {
-            (data, response, error) in
-            // result is [Photo]
-            var result = self.processPhotosRequest(data: data, error: error)
-            if case .success = result {
-                do {
-                    try self.persistentContainer.viewContext.save()
-                } catch let error {
-                    result = .failure(error)
+            let request = URLRequest(url: photoURL as URL)
+            let task = self.session.dataTask(with: request) { (data, response, error) in
+                // result is UIImage
+                let result = self.processImageRequest(data: data, error: error) { context in
+                    guard let imageData = data, let image = UIImage(data: imageData) else {
+                        // can't create an image(UIImage)
+                        if data == nil {
+                            return .failure(error!)
+                        } else {
+                            return .failure(PhotoError.imageCreationError)
+                        }
+                    }
+                    
+                    print("processImageRequest \(Thread.current)")
+                    return .success(image)
+                }
+
+                if case let .success(image) = result {
+                    self.imageStore.setImage(image, forkey: photoKey)
+                }
+                OperationQueue.main.addOperation {
+                    completion(result)
                 }
             }
-            
-            OperationQueue.main.addOperation {
-                completion(result)
-            }
-            
+            task.resume()
         }
-        task.resume()
+    }
+    
+    func fetchInterestingPhotos(completion: @escaping (PhotosResult) -> Void) {
+        persistentContainer.performBackgroundTask { context in
+            let url = FlickrAPI.interestingPhotosURL
+            let request = URLRequest(url: url)
+            let task = self.session.dataTask(with: request) {
+                (data, response, error) in
+                // result is [Photo]
+                var result = self.processPhotosRequest(data: data, error: error) { context in
+                    guard let jsonData = data else {
+                        return .failure(error!)
+                    }
+                    
+                    print("processPhotosRequest \(Thread.current)")
+                    //
+                    return FlickrAPI.photos(fromJSON: jsonData, into: context)
+                }
+
+                if case .success = result {
+                    do {
+                        try self.persistentContainer.viewContext.save()
+                    } catch let error {
+                        result = .failure(error)
+                    }
+                }
+                
+                OperationQueue.main.addOperation {
+                    completion(result)
+                }
+                
+            }
+            task.resume()
+        }
     }
     
     
