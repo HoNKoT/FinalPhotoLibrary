@@ -90,19 +90,21 @@ class PhotoStore {
     }
     
     private func processPhotosRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> PhotosResult) -> PhotosResult {
-        var result: PhotosResult? = nil
-        asyncronizedContext.performAndWait {
-            result = completionHandler(self.asyncronizedContext)
-        }
-        return result!
+//        var result: PhotosResult? = nil
+//        asyncronizedContext.performAndWait {
+//            result = completionHandler(self.asyncronizedContext)
+//        }
+//        return result!
+        return completionHandler(self.asyncronizedContext)
     }
     
     private func processImageRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> ImageResult) -> ImageResult {
-        var result: ImageResult? = nil
-        asyncronizedContext.performAndWait {
-            result = completionHandler(self.asyncronizedContext)
-        }
-        return result!
+//        var result: ImageResult? = nil
+//        asyncronizedContext.performAndWait {
+//            result = completionHandler(self.asyncronizedContext)
+//        }
+//        return result!
+        return completionHandler(self.asyncronizedContext)
     }
     
     func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
