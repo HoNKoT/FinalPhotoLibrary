@@ -90,6 +90,7 @@ class PhotoStore {
     }
     
     private func processPhotosRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> PhotosResult) -> PhotosResult {
+        // it does not work so just comment out
 //        var result: PhotosResult? = nil
 //        asyncronizedContext.performAndWait {
 //            result = completionHandler(self.asyncronizedContext)
@@ -99,6 +100,7 @@ class PhotoStore {
     }
     
     private func processImageRequest(data: Data?, error: Error?, completionHandler: @escaping (NSManagedObjectContext) -> ImageResult) -> ImageResult {
+        // it does not work so just comment out
 //        var result: ImageResult? = nil
 //        asyncronizedContext.performAndWait {
 //            result = completionHandler(self.asyncronizedContext)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="iy8-QX-P1F">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="iy8-QX-P1F">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -45,18 +45,29 @@
                                                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="xj3-6N-x6L">
                                                     <rect key="frame" x="35" y="35" width="20" height="20"/>
                                                 </activityIndicatorView>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qLK-gY-gWf">
+                                                    <rect key="frame" x="57" y="6" width="28" height="28"/>
+                                                    <color key="backgroundColor" red="0.98029457659999997" green="0.34882805300000003" blue="0.24802791900000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="28" id="WUT-Ry-PCW"/>
+                                                        <constraint firstAttribute="height" constant="28" id="rdi-k4-SyL"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                         </view>
                                         <color key="backgroundColor" red="1" green="0.76295487130660922" blue="0.83840406055460381" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <constraints>
                                             <constraint firstItem="sqj-Na-mtQ" firstAttribute="leading" secondItem="dwg-jb-tcd" secondAttribute="leading" id="63x-AQ-nBw"/>
+                                            <constraint firstItem="sqj-Na-mtQ" firstAttribute="top" secondItem="qLK-gY-gWf" secondAttribute="bottom" constant="-34" id="F6M-fF-yw7"/>
                                             <constraint firstItem="xj3-6N-x6L" firstAttribute="centerX" secondItem="dwg-jb-tcd" secondAttribute="centerX" id="FpC-xn-2RN"/>
                                             <constraint firstAttribute="trailing" secondItem="sqj-Na-mtQ" secondAttribute="trailing" id="KeD-EP-wes"/>
                                             <constraint firstItem="sqj-Na-mtQ" firstAttribute="top" secondItem="dwg-jb-tcd" secondAttribute="top" id="NUq-eP-0fG"/>
                                             <constraint firstItem="xj3-6N-x6L" firstAttribute="centerY" secondItem="dwg-jb-tcd" secondAttribute="centerY" id="Zdt-cU-ag5"/>
                                             <constraint firstAttribute="bottom" secondItem="sqj-Na-mtQ" secondAttribute="bottom" id="qnK-DN-0ML"/>
+                                            <constraint firstItem="qLK-gY-gWf" firstAttribute="leading" secondItem="sqj-Na-mtQ" secondAttribute="trailing" constant="-33" id="w0L-3h-KC6"/>
                                         </constraints>
                                         <connections>
+                                            <outlet property="favorite" destination="qLK-gY-gWf" id="sLU-lN-Oaz"/>
                                             <outlet property="imageView" destination="sqj-Na-mtQ" id="SdG-hY-Dyu"/>
                                             <outlet property="spinner" destination="xj3-6N-x6L" id="z44-0p-BNc"/>
                                             <segue destination="4cc-6m-bJf" kind="show" identifier="showPhoto" id="D8o-uz-2VC"/>

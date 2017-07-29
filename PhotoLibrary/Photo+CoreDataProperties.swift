@@ -2,7 +2,7 @@
 //  Photo+CoreDataProperties.swift
 //  PhotoLibrary
 //
-//  Created by Derrick Park on 2017-07-26.
+//  Created by Hiroki Honda on 2017-07-28.
 //  Copyright © 2017 Derrick Park. All rights reserved.
 //
 
@@ -20,6 +20,7 @@ extension Photo {
     @NSManaged public var photoID: String?
     @NSManaged public var remoteURL: NSURL?
     @NSManaged public var title: String?
+    @NSManaged public var favorite: Bool
     @NSManaged public var tags: NSSet?
 
 }
